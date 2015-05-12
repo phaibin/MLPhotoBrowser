@@ -183,9 +183,13 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
 
 #pragma mark - reloadData
 - (void) reloadData{
-    self.currentPage = self.currentIndexPath.row;
-//    self.collectionView.dataSource = self;
-    [self.collectionView reloadItemsAtIndexPaths:@[self.currentIndexPath]];
+    
+    if (self.currentPage <= 0){
+        self.currentPage = self.currentIndexPath.item;
+    }else{
+        self.currentPage--;
+    }
+    [self.collectionView reloadData];
     
     // 添加自定义View
     if ([self.delegate respondsToSelector:@selector(photoBrowserShowToolBarViewWithphotoBrowser:)]) {
@@ -437,6 +441,7 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
     __weak typeof(self)weakSelf = self;
     self.disMissBlock = ^(NSInteger page){
         mainView.hidden = NO;
+        mainView.alpha = 1.0;
         CGRect originalFrame = CGRectZero;
         [weakSelf dismissViewControllerAnimated:NO completion:nil];
         
@@ -444,7 +449,7 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
         if(self.status == UIViewAnimationAnimationStatusZoom){
             imageView.image = [(UIImageView *)[[weakSelf.dataSource photoBrowser:weakSelf photoAtIndexPath:[NSIndexPath indexPathForItem:page inSection:weakSelf.currentIndexPath.section]] toView] image];
             imageView.frame = [weakSelf setMaxMinZoomScalesForCurrentBounds:imageView];
-
+            
             UIImageView *toImageView2 = (UIImageView *)[[weakSelf.dataSource photoBrowser:weakSelf photoAtIndexPath:[NSIndexPath indexPathForItem:page inSection:weakSelf.currentIndexPath.section]] toView];
             originalFrame = [toImageView2.superview convertRect:toImageView2.frame toView:[weakSelf getParsentView:toImageView2]];
         }
@@ -458,6 +463,8 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
                 imageView.frame = originalFrame;
             }
         } completion:^(BOOL finished) {
+            imageView.alpha = 1.0;
+            mainView.alpha = 1.0;
             [mainView removeFromSuperview];
             [imageView removeFromSuperview];
         }];
