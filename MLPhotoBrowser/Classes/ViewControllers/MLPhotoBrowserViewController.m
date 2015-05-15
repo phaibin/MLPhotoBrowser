@@ -279,6 +279,9 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
 
 #pragma mark - 获取CollectionView
 - (UIView *) getScrollViewBaseViewWithCell:(UIView *)view{
+    if (view == nil) {
+        return nil;
+    }
     for (int i = 0; i < view.subviews.count; i++) {
         UICollectionViewCell *cell = view.subviews[i];
         if ([cell isKindOfClass:[UICollectionView class]] || [cell isKindOfClass:[UITableView class]]  || [cell isKindOfClass:[UIScrollView class]] || view == nil) {
