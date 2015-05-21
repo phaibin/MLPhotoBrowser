@@ -182,7 +182,7 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
 }
 
 #pragma mark - reloadData
-- (void) reloadData{
+- (void)reloadData{
     
     if (self.currentPage <= 0){
         self.currentPage = self.currentIndexPath.item;
@@ -505,6 +505,10 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
     // Image is smaller than screen so no zooming!
     if (xScale >= 1 && yScale >= 1) {
         minScale = MIN(xScale, yScale);
+    }
+    
+    if (minScale >= 3) {
+        minScale = 3;
     }
     
     CGRect frameToCenter = CGRectMake(0, 0, imageSize.width * minScale, imageSize.height * minScale);

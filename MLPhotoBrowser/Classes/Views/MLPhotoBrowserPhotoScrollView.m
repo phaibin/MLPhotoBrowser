@@ -24,6 +24,8 @@ static NSInteger const ZLPickerProgressViewH = 50;
 }
 
 @property (assign,nonatomic) CGFloat progress;
+// 加载完成
+@property (assign,nonatomic) BOOL isLoadingDone;
 @property (strong,nonatomic) DACircularProgressView *progressView;
 
 @end
@@ -137,6 +139,7 @@ static NSInteger const ZLPickerProgressViewH = 50;
         NSRange photoRange = [photo.photoURL.absoluteString rangeOfString:@"assets-library"];
         if (photoRange.location != NSNotFound){
             [[MLPhotoBrowserDatas defaultPicker] getAssetsPhotoWithURL:photo.photoURL callBack:^(UIImage *obj) {
+                self.isLoadingDone = YES;
                 _photoImageView.image = obj;
                 [weakSelf displayImage];
             }];
@@ -151,18 +154,24 @@ static NSInteger const ZLPickerProgressViewH = 50;
             _photoImageView.contentMode = UIViewContentModeScaleAspectFit;
             _photoImageView.frame = [self setMaxMinZoomScalesForCurrentBounds:_photoImageView];
             
+            self.progress = 0.01;
             // 网络URL
             [_photoImageView sd_setImageWithURL:photo.photoURL placeholderImage:thumbImage options:SDWebImageRetryFailed progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                 self.progress = (double)receivedSize / expectedSize;
             } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                _photoImageView.image = image;
-                [weakSelf displayImage];
+                self.progress = 1;
+                if (image != nil) {
+                    self.isLoadingDone = YES;
+                    _photoImageView.image = image;
+                    [weakSelf displayImage];
+                }
             }];
             
         }
         
         
     }  else if (photo.photoImage){
+        self.isLoadingDone = YES;
         _photoImageView.image = photo.photoImage;
         [self displayImage];
     }
@@ -183,6 +192,10 @@ static NSInteger const ZLPickerProgressViewH = 50;
     // Image is smaller than screen so no zooming!
     if (xScale >= 1 && yScale >= 1) {
         minScale = MIN(xScale, yScale);
+    }
+    
+    if (minScale >= 3) {
+        minScale = 3;
     }
     
     CGRect frameToCenter = CGRectMake(0, 0, imageSize.width * minScale, imageSize.height * minScale);
@@ -380,11 +393,13 @@ static NSInteger const ZLPickerProgressViewH = 50;
         self.contentSize = CGSizeMake(self.frame.size.width, 0);
     } else {
         
-        // Zoom in to twice the size
-        CGFloat newZoomScale = ((self.maximumZoomScale + self.minimumZoomScale) / 2);
-        CGFloat xsize = self.bounds.size.width / newZoomScale;
-        CGFloat ysize = self.bounds.size.height / newZoomScale;
-        [self zoomToRect:CGRectMake(touchPoint.x - xsize/2, touchPoint.y - ysize/2, xsize, ysize) animated:YES];
+        if (self.isLoadingDone) {
+            // Zoom in to twice the size
+            CGFloat newZoomScale = ((self.maximumZoomScale + self.minimumZoomScale) / 2);
+            CGFloat xsize = self.bounds.size.width / newZoomScale;
+            CGFloat ysize = self.bounds.size.height / newZoomScale;
+            [self zoomToRect:CGRectMake(touchPoint.x - xsize/2, touchPoint.y - ysize/2, xsize, ysize) animated:YES];
+        }
         
     }
     

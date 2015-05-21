@@ -74,8 +74,9 @@
         if ([[self.photos objectAtIndex:i] isKindOfClass:[MLPhotoBrowserAssets class]]) {
             [btn setImage:[self.photos[i] thumbImage] forState:UIControlStateNormal];
         }else{
-            [btn sd_setImageWithURL:[NSURL URLWithString:self.photos[i % (self.photos.count)]] forState:UIControlStateNormal];
+            [btn sd_setImageWithURL:[NSURL URLWithString:self.photos[i % (self.photos.count)]] forState:UIControlStateNormal placeholderImage:[UIImage imageNamed:@"pc_circle_placeholder"]];
         }
+        
         btn.tag = i;
         [btn addTarget:self action:@selector(tapBrowser:) forControlEvents:UIControlEventTouchUpInside];
         [self.scrollView addSubview:btn];
