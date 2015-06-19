@@ -32,27 +32,6 @@ static NSInteger const ZLPickerProgressViewH = 50;
 
 @implementation MLPhotoBrowserPhotoScrollView
 
-- (DACircularProgressView *)progressView{
-    if (!_progressView) {
-        DACircularProgressView *progressView = [[DACircularProgressView alloc] init];
-        
-        progressView.frame = CGRectMake(0, 0, ZLPickerProgressViewW, ZLPickerProgressViewH);
-        progressView.center = CGPointMake([UIScreen mainScreen].bounds.size.width * 0.5, [UIScreen mainScreen].bounds.size.height * 0.5);
-        progressView.roundedCorners = YES;
-        if (iOS7gt) {
-            progressView.thicknessRatio = 0.1;
-            progressView.roundedCorners = NO;
-        } else {
-            progressView.thicknessRatio = 0.2;
-            progressView.roundedCorners = YES;
-        }
-        
-        [self addSubview:progressView];
-        self.progressView = progressView;
-    }
-    return _progressView;
-}
-
 - (id)init{
     if ((self = [super init])) {
         
@@ -81,7 +60,22 @@ static NSInteger const ZLPickerProgressViewH = 50;
         
         UILongPressGestureRecognizer *longGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longGesture:)];
         [self addGestureRecognizer:longGesture];
+     
+        DACircularProgressView *progressView = [[DACircularProgressView alloc] init];
         
+        progressView.frame = CGRectMake(0, 0, ZLPickerProgressViewW, ZLPickerProgressViewH);
+        progressView.center = CGPointMake([UIScreen mainScreen].bounds.size.width * 0.5, [UIScreen mainScreen].bounds.size.height * 0.5);
+        progressView.roundedCorners = YES;
+        if (iOS7gt) {
+            progressView.thicknessRatio = 0.1;
+            progressView.roundedCorners = NO;
+        } else {
+            progressView.thicknessRatio = 0.2;
+            progressView.roundedCorners = YES;
+        }
+        
+        [self addSubview:progressView];
+        self.progressView = progressView;
     }
     return self;
 }
