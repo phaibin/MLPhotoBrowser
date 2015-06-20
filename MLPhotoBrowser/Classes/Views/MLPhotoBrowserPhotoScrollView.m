@@ -62,7 +62,7 @@ static NSInteger const ZLPickerProgressViewH = 50;
         [self addGestureRecognizer:longGesture];
      
         DACircularProgressView *progressView = [[DACircularProgressView alloc] init];
-        
+        progressView.hidden = YES;
         progressView.frame = CGRectMake(0, 0, ZLPickerProgressViewW, ZLPickerProgressViewH);
         progressView.center = CGPointMake([UIScreen mainScreen].bounds.size.width * 0.5, [UIScreen mainScreen].bounds.size.height * 0.5);
         progressView.roundedCorners = YES;
@@ -216,6 +216,7 @@ static NSInteger const ZLPickerProgressViewH = 50;
 - (void)setProgress:(CGFloat)progress{
     _progress = progress;
     
+    self.progressView.hidden = NO;
     if (progress == 0) return ;
     if (progress / 1.0 != 1.0) {
         [self.progressView setProgress:progress animated:YES];
