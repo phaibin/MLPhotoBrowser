@@ -68,10 +68,7 @@
 
 #pragma mark get Controller.view
 - (UIView *)getParsentView:(UIView *)view{
-    if ([[view nextResponder] isKindOfClass:[UIViewController class]] || view == nil) {
-        return view;
-    }
-    return [self getParsentView:view.superview];
+    return [UIApplication sharedApplication].keyWindow.rootViewController.view;
 }
 
 @end
