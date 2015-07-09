@@ -142,7 +142,7 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
 }
 
 #pragma mark - Life cycle
-- (void)viewDidAppear:(BOOL)animated{
+- (void)viewWillAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     NSAssert(self.dataSource, @"你没成为数据源代理");
     
