@@ -216,14 +216,16 @@ static NSInteger const ZLPickerProgressViewH = 50;
 - (void)setProgress:(CGFloat)progress{
     _progress = progress;
     
-    self.progressView.hidden = NO;
-    if (progress == 0) return ;
-    if (progress / 1.0 != 1.0) {
-        [self.progressView setProgress:progress animated:YES];
-    }else{
-        [self.progressView removeFromSuperview];
-        self.progressView = nil;
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.progressView.hidden = NO;
+        if (progress == 0) return ;
+        if (progress / 1.0 != 1.0) {
+            [self.progressView setProgress:progress animated:YES];
+        }else{
+            [self.progressView removeFromSuperview];
+            self.progressView = nil;
+        }
+    });
 }
 
 
