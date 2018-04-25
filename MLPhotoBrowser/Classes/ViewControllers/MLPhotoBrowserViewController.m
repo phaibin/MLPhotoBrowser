@@ -65,7 +65,7 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
         collectionView.showsHorizontalScrollIndicator = NO;
         collectionView.showsVerticalScrollIndicator = NO;
         collectionView.pagingEnabled = YES;
-        collectionView.backgroundColor = [UIColor clearColor];
+        collectionView.backgroundColor = [UIColor blackColor];
         collectionView.bounces = YES;
         collectionView.dataSource = self;
         collectionView.delegate = self;
@@ -142,10 +142,19 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
 }
 
 #pragma mark - Life cycle
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+        self.automaticallyAdjustsScrollViewInsets = NO;
+        self.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    }
+    return self;
+}
+
 - (void)viewWillAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     NSAssert(self.dataSource, @"你没成为数据源代理");
     
+    self.collectionView.hidden = YES;
     [self showToView];
 }
 
@@ -156,7 +165,7 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.backgroundColor = [UIColor blackColor];
+    self.view.backgroundColor = [UIColor clearColor];
     [self reloadData];
     
 }
@@ -404,7 +413,7 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
 
 - (void)showToView{
     UIView *mainView = [[UIView alloc] init];
-    mainView.backgroundColor = [UIColor blackColor];
+    mainView.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.0];
     mainView.frame = [UIScreen mainScreen].bounds;
     [[UIApplication sharedApplication].keyWindow addSubview:mainView];
     
@@ -454,7 +463,7 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
             originalFrame = [toImageView2.superview convertRect:toImageView2.frame toView:[weakSelf getParsentView:toImageView2]];
         }
         
-        [UIView animateWithDuration:0.25 animations:^{
+        [UIView animateWithDuration:0.35 animations:^{
             if (weakSelf.status == UIViewAnimationAnimationStatusFade){
                 imageView.alpha = 0.0;
                 mainView.alpha = 0.0;
@@ -470,14 +479,16 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
         }];
     };
     
-    [UIView animateWithDuration:0.25 animations:^{
+    [UIView animateWithDuration:0.35 animations:^{
         if (self.status == UIViewAnimationAnimationStatusFade){
             // 淡入淡出
             imageView.alpha = 1.0;
         }else if(self.status == UIViewAnimationAnimationStatusZoom){
             imageView.frame = [self setMaxMinZoomScalesForCurrentBounds:imageView];
+            mainView.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1];
         }
     } completion:^(BOOL finished) {
+        weakSelf.collectionView.hidden = NO;
         mainView.hidden = YES;
     }];
 }
@@ -496,35 +507,11 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
         return imageView.frame;
     }
     
-    CGFloat xScale = boundsSize.width / imageSize.width;    // the scale needed to perfectly fit the image width-wise
-    CGFloat yScale = boundsSize.height / imageSize.height;  // the scale needed to perfectly fit the image height-wise
-    CGFloat minScale = MIN(xScale, yScale);                 // use minimum of these to allow the image to become fully visible
-    // Image is smaller than screen so no zooming!
-    if (xScale >= 1 && yScale >= 1) {
-        minScale = MIN(xScale, yScale);
-    }
-    
-    if (minScale >= 3) {
-        minScale = 3;
-    }
-    
-    CGRect frameToCenter = CGRectMake(0, 0, imageSize.width * minScale, imageSize.height * minScale);
-    
-    // Horizontally
-    if (frameToCenter.size.width < boundsSize.width) {
-        frameToCenter.origin.x = floorf((boundsSize.width - frameToCenter.size.width) / 2.0);
-    } else {
-        frameToCenter.origin.x = 0;
-    }
-    
-    // Vertically
-    if (frameToCenter.size.height < boundsSize.height) {
-        frameToCenter.origin.y = floorf((boundsSize.height - frameToCenter.size.height) / 2.0);
-    } else {
-        frameToCenter.origin.y = 0;
-    }
-    
-    return frameToCenter;
+    CGRect photoImageViewFrame;
+    photoImageViewFrame.origin = CGPointZero;
+    photoImageViewFrame.size.width = boundsSize.width;
+    photoImageViewFrame.size.height = imageSize.height / imageSize.width * boundsSize.width;
+    return photoImageViewFrame;
 }
 
 @end

@@ -8,8 +8,8 @@
 
 #import "MLPhotoBrowserPhotoScrollView.h"
 #import "MLPhotoBrowserDatas.h"
-#import <DACircularProgressView.h>
-#import <UIImageView+WebCache.h>
+#import "DACircularProgressView.h"
+#import "UIImageView+WebCache.h"
 
 #define iOS7gt ([[UIDevice currentDevice].systemVersion doubleValue] >= 7.0)
 
@@ -34,6 +34,9 @@ static NSInteger const ZLPickerProgressViewH = 50;
 
 - (id)init{
     if ((self = [super init])) {
+        if (@available(iOS 11.0, *)) {
+            self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
         
         // Setup
         // Tap view for background
@@ -249,7 +252,8 @@ static NSInteger const ZLPickerProgressViewH = 50;
         // Setup photo frame
         CGRect photoImageViewFrame;
         photoImageViewFrame.origin = CGPointZero;
-        photoImageViewFrame.size = img.size;
+        photoImageViewFrame.size.width = UIScreen.mainScreen.bounds.size.width;
+        photoImageViewFrame.size.height = img.size.height / img.size.width * UIScreen.mainScreen.bounds.size.width;
         _photoImageView.frame = photoImageViewFrame;
         self.contentSize = photoImageViewFrame.size;
         
@@ -282,7 +286,7 @@ static NSInteger const ZLPickerProgressViewH = 50;
 - (void)setMaxMinZoomScalesForCurrentBounds {
     
     // Reset
-    self.maximumZoomScale = 1;
+    self.maximumZoomScale = 4;
     self.minimumZoomScale = 1;
     self.zoomScale = 1;
     
@@ -291,36 +295,6 @@ static NSInteger const ZLPickerProgressViewH = 50;
     
     // Reset position
     _photoImageView.frame = CGRectMake(0, 0, _photoImageView.frame.size.width, _photoImageView.frame.size.height);
-    
-    // Sizes
-    CGSize boundsSize = self.bounds.size;
-    CGSize imageSize = _photoImageView.image.size;
-    
-    // Calculate Min
-    CGFloat xScale = boundsSize.width / imageSize.width;    // the scale needed to perfectly fit the image width-wise
-    CGFloat yScale = boundsSize.height / imageSize.height;  // the scale needed to perfectly fit the image height-wise
-    CGFloat minScale = MIN(xScale, yScale);                 // use minimum of these to allow the image to become fully visible
-    
-    // Image is smaller than screen so no zooming!
-    if (xScale >= 1 && yScale >= 1) {
-        minScale = MIN(xScale, yScale);
-    }
-    
-    // Set min/max zoom
-    self.minimumZoomScale = minScale;
-    self.maximumZoomScale = minScale * 3;
-    
-    // Initial zoom
-    self.zoomScale = self.minimumZoomScale;
-    
-    // If we're zooming to fill then centralise
-    if (self.zoomScale != minScale) {
-        // Centralise
-        self.contentOffset = CGPointMake((imageSize.width * self.zoomScale - boundsSize.width) / 2.0,
-                                         (imageSize.height * self.zoomScale - boundsSize.height) / 2.0);
-        // Disable scrolling initially until the first pinch to fix issues with swiping on an initally zoomed in photo
-        self.scrollEnabled = NO;
-    }
     
     // Layout
     [self setNeedsLayout];
@@ -376,7 +350,6 @@ static NSInteger const ZLPickerProgressViewH = 50;
         
         // Zoom out
         [self setZoomScale:self.minimumZoomScale animated:YES];
-        self.contentSize = CGSizeMake(self.frame.size.width, 0);
     } else {
         
         if (self.isLoadingDone) {
