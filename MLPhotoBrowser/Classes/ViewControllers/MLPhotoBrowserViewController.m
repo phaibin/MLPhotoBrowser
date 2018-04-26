@@ -511,6 +511,9 @@ static CGFloat const ZLPickerColletionViewPadding = 20;
     photoImageViewFrame.origin = CGPointZero;
     photoImageViewFrame.size.width = boundsSize.width;
     photoImageViewFrame.size.height = imageSize.height / imageSize.width * boundsSize.width;
+    if (photoImageViewFrame.size.height < boundsSize.height) {
+        photoImageViewFrame.origin.y = (boundsSize.height - photoImageViewFrame.size.height) / 2.0;
+    }
     return photoImageViewFrame;
 }
 
